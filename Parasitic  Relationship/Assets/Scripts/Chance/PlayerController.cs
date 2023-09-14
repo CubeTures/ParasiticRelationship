@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
                 rb.drag = linearDrag;
             }
             if (x_force > -max_movement_xforce){
-                if (-speed < (-max_movement_xforce - x_force)){//x force can be positive since the player can press left while going right
+                if (-speed < (-max_movement_xforce - x_force)){ //x force can be positive since the player can press left while going right
                     rb.AddForce(new Vector2(-speed, 0));
                 }else{
                     rb.AddForce(new Vector2(-(max_movement_xforce - rb.totalForce.x) * movementmod, 0));

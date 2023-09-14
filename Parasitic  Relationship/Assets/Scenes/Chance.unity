@@ -457,9 +457,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62db7afee4ed042a9ae451ee33782414, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ground_layers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   grounded_ray: {fileID: 891828148}
   air_control: 1
   reduce_air_control: 0.25
+  air_drag: 0
   speed: 15
   mass: 1
   x_size: 1
