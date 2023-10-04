@@ -129,11 +129,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ground_layers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 8
   grounded_ray: {fileID: 2402608734459627544}
   air_control: 1
   reduce_air_control: 0.25
   air_drag: 0
+  jumps: 1
+  jumpForce: 500
+  doubleJumpForce: 10
   speed: 15
   mass: 1
   x_size: 1
@@ -141,10 +144,7 @@ MonoBehaviour:
   linearDrag: 0
   max_movement_xforce: 8
   dampenerStrength: 50
-  jumpForce: 500
-  doubleJumpForce: 10
   lock_rotation: 1
-  doubleJump: 0
   grounded: 0
 --- !u!61 &8777636816845845829
 BoxCollider2D:
