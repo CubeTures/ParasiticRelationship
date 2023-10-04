@@ -25,10 +25,6 @@ public class PlayerController : MonoBehaviour
     public float reduce_air_control = .25f;
     [Tooltip("Toggles drag effects when in air. Applies to vertical too, can cause weird effect.")]
     public bool air_drag = false;
-    /*
-    [Tooltip("slamForce is the force applied when the player presses S/DOWN")]
-    public float slamForce = 5;
-    */
 
     [Header("Jump Stuff")]
 
@@ -46,6 +42,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Multiplies players gravity when falling froma jump")]
     [Range(1f, 10f)]
     public float jumpGrav = 3;
+    public float baseGravScale = 2;
     bool jumpCheat;//jumpCheat is false once the player is no longer grounded, its not a measure of if the player is moving up etc
     bool jumping;
     //variables to add
@@ -107,14 +104,14 @@ public class PlayerController : MonoBehaviour
             grounded = false;
         }
         if (grounded) {
-            rb.gravityScale = 1;
+            rb.gravityScale = baseGravScale;
             if (jumping) {
                 jumping = false;
             }
         }
 
         if (grounded && (jumpsLeft < jumps)) {
-            rb.gravityScale = 1;
+            rb.gravityScale = baseGravScale;
             jumpsLeft = jumps;
         }
         float x_force = rb.velocity.x * mass;
@@ -170,12 +167,6 @@ public class PlayerController : MonoBehaviour
         if (!jumping && !grounded && fallDampening) {
             rb.gravityScale = jumpGrav;
         }
-        /*
-        if (Input.GetKey(KeyCode.S)) {
-            rb.AddForce(new Vector2(0, -slamForce));
-        }
-        */
-        //Debug.Log(x_force);
 
     }
     void tryJump(){

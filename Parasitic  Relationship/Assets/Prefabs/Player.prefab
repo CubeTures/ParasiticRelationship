@@ -168,11 +168,12 @@ MonoBehaviour:
   reduce_air_control: 0.25
   air_drag: 0
   jumps: 1
-  jumpForce: 500
-  doubleJumpForce: 250
+  jumpForce: 700
+  doubleJumpForce: 350
   jumpDampening: 1
   fallDampening: 1
   jumpGrav: 3
+  baseGravScale: 2
   speed: 15
   max_movement_xforce: 8
   mass: 1
