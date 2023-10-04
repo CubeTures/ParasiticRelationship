@@ -14,7 +14,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Remove layers from this mask to prevent them from interacting as ground to the player.\n(anything you dont want the player to be able to jump on)")]
     public LayerMask ground_layers;
     [Tooltip("This point shoots a ray horizontally (to the left) by x_size, if it hits the player is grounded")]
-    public Transform grounded_ray;
+    public Transform groundedRayRight;
+    public Transform groundedRayLeft;
 
     [Header("Air Control")]
 
@@ -24,6 +25,10 @@ public class PlayerController : MonoBehaviour
     public float reduce_air_control = .25f;
     [Tooltip("Toggles drag effects when in air. Applies to vertical too, can cause weird effect.")]
     public bool air_drag = false;
+    /*
+    [Tooltip("slamForce is the force applied when the player presses S/DOWN")]
+    public float slamForce = 5;
+    */
 
     [Header("Jump Stuff")]
 
@@ -33,8 +38,16 @@ public class PlayerController : MonoBehaviour
     float movementmod;
     [Tooltip("Adjust the force applied when the player jumps")]
     public float jumpForce = 500;
-    [Tooltip("Adjust the force applied on the second jump")]
+    [Tooltip("Adjust the force applied on jumps after the first one")]
     public float doubleJumpForce = 10;
+    [Tooltip("Dampen Jumps? Turns on the gravity multiplier for jumps")]
+    public bool jumpDampening = true;
+    public bool fallDampening = true;
+    [Tooltip("Multiplies players gravity when falling froma jump")]
+    [Range(1f, 10f)]
+    public float jumpGrav = 3;
+    bool jumpCheat;//jumpCheat is false once the player is no longer grounded, its not a measure of if the player is moving up etc
+    bool jumping;
     //variables to add
     //public bool wallResetJump = false;
 
@@ -42,16 +55,19 @@ public class PlayerController : MonoBehaviour
 
     [Tooltip("Adjust the players speed")]
     public float speed = 15;
+    [Tooltip("The players max force in the x direction, if speed is greater than this, speed is bypassed")]
+    public float max_movement_xforce = 15;
     [Tooltip("Adjust the players mass")]
     public float mass = 1;
-    [Tooltip("This is used to determine how far to shoot the ground raycast, may have more uses in the future.")]
-    public float x_size = 1;
     public float angularDrag = .05f;
     public float linearDrag = 0f;
-    public float max_movement_xforce = 15;
     [Tooltip("Adjust movement dampening")]
-    [Range(0f,100f)]
+    [Range(0f,10f)]
     public float dampenerStrength = 50;
+    public bool counterSlide = false;
+    [Tooltip("the lenience for how fast the player needs to be moving to counter the slide, a smaller number means the slide will be cancelled fuller")]
+    [Range(0f,1f)]
+    public float counterSlideLenience = .25f;
 
     [Header("Other")]
     public bool lock_rotation = true;
@@ -66,22 +82,39 @@ public class PlayerController : MonoBehaviour
         rb.angularDrag = angularDrag;
         rb.drag = linearDrag;
         rb.freezeRotation = lock_rotation;
-        jumpsLeft = jumps;
     }
 
     void Update(){
         if (Input.GetKeyDown(KeyCode.Space)){
             tryJump();
         }
+        //Debug.Log(rb.velocity.y);
+        if (Input.GetKeyUp(KeyCode.Space) && jumping && jumpDampening) {
+            rb.gravityScale = jumpGrav;
+        }
+
     }
     // FixedUpdate happens once every physics frame
     void FixedUpdate()
     {
 
         // || Physics2D.Raycast(new Vector2(this.transform.position.x-.5f, this.transform.position.y - .5f), Vector2.down, .1f)
-        grounded = Physics2D.Raycast(grounded_ray.transform.position, new Vector2(-90, 0), x_size, ground_layers);
-        Debug.Log(grounded);
+        grounded = Physics2D.Linecast(groundedRayRight.transform.position, groundedRayLeft.transform.position, ground_layers);//.9f is to stop it from hitting the walls a bit
+        if (jumpCheat) {
+            if (!grounded) {
+                jumpCheat = false;
+            }
+            grounded = false;
+        }
+        if (grounded) {
+            rb.gravityScale = 1;
+            if (jumping) {
+                jumping = false;
+            }
+        }
+
         if (grounded && (jumpsLeft < jumps)) {
+            rb.gravityScale = 1;
             jumpsLeft = jumps;
         }
         float x_force = rb.velocity.x * mass;
@@ -101,39 +134,62 @@ public class PlayerController : MonoBehaviour
         //-------All Movement Code Must Go Below--------//
         if (Input.GetKey(KeyCode.D)){
             if (x_force < 0 && (grounded || air_drag)){
-                rb.drag *= dampenerStrength;
+                rb.drag = dampenerStrength;
             }else{
                 rb.drag = linearDrag;
             }
-            if (x_force < max_movement_xforce){
-                if (speed < (max_movement_xforce - x_force)){
+            if (x_force < max_movement_xforce){//allow the player to move?
+                if ((x_force + (speed * mass * Time.deltaTime)) < max_movement_xforce) {
                     rb.AddForce(new Vector2(speed, 0));
-                }else{
-                    rb.AddForce(new Vector2((max_movement_xforce - rb.totalForce.x) * movementmod, 0));
+                }
+                else {
+                    rb.AddForce(new Vector2((max_movement_xforce - x_force) * movementmod, 0));
                 }
             }
         }
         if (Input.GetKey(KeyCode.A)){
             if (x_force > 0 && (grounded || air_drag)){
-                rb.drag *= dampenerStrength;
+                rb.drag = dampenerStrength;
             }else{
                 rb.drag = linearDrag;
             }
-            if (x_force > -max_movement_xforce){
-                if (-speed < (-max_movement_xforce - x_force)){//x force can be positive since the player can press left while going right
+            if (x_force > -max_movement_xforce){//allow the player to move?
+                if ((x_force + (-speed * mass * Time.deltaTime)) > -max_movement_xforce) {
                     rb.AddForce(new Vector2(-speed, 0));
-                }else{
-                    rb.AddForce(new Vector2(-(max_movement_xforce - rb.totalForce.x) * movementmod, 0));
+                }
+                else {
+                    rb.AddForce(new Vector2((-max_movement_xforce - x_force) * movementmod, 0));
                 }
             }
         }
+        if (counterSlide && grounded) {
+            if (((x_force > (max_movement_xforce * counterSlideLenience)) && !Input.GetKey(KeyCode.D)) || ((x_force < (-max_movement_xforce * counterSlideLenience)) && !Input.GetKey(KeyCode.A))) {
+                rb.drag = dampenerStrength;
+            }
+        }
+        if (!jumping && !grounded && fallDampening) {
+            rb.gravityScale = jumpGrav;
+        }
+        /*
+        if (Input.GetKey(KeyCode.S)) {
+            rb.AddForce(new Vector2(0, -slamForce));
+        }
+        */
+        //Debug.Log(x_force);
 
     }
     void tryJump(){
         if (jumpsLeft > 0){
-            jumpsLeft--;
+            jumpCheat = true;
+            jumping = true;
             rb.drag = linearDrag;
-            rb.AddForce(new Vector2(0, jumpForce));
+            if ((doubleJumpForce != jumpForce) && (jumpsLeft < jumps)){
+                rb.AddForce(new Vector2(0, doubleJumpForce)); // since using addforce and grounded raycast the player can read as grounded after they jump and get the jump reset, prevented with more jump logic
+            }
+            else {
+                rb.AddForce(new Vector2(0, jumpForce)); // since using addforce and grounded raycast the player can read as grounded after they jump and get the jump reset, prevented with more jump logic
+            }
+            jumpsLeft--;
         }
     }
 }
