@@ -15,6 +15,9 @@ public class SwitchActiveCameraTrigger : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        SwitchActiveCamera.Instance.SetNewActiveCamera(vCamera);
+        if(collision.CompareTag("Player"))
+        {
+            SwitchActiveCamera.Instance.SetNewActiveCamera(vCamera);
+        }
     }
 }

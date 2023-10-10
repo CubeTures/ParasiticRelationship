@@ -32,6 +32,11 @@ public class SwitchActiveCamera : MonoBehaviour
             newActiveCamera.enabled = true;
             activeCamera = newActiveCamera;
 
+            SetActiveScene(newActiveCamera.gameObject);
         }
+    }
+    void SetActiveScene(GameObject obj)
+    {
+        SceneLoader.SetScene(obj);
     }
 }

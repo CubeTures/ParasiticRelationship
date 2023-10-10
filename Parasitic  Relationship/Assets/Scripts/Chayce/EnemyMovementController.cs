@@ -5,42 +5,58 @@ using UnityEngine;
 
 public class EnemyMovementController : MonoBehaviour
 {
-    public float detectionRange = 0.0F;
-    public float movementSpeed = 0.0F;
-    public bool isMovingRight = true;
-    public bool isTurning = false;
-    public float seconds = 0.0f;
-    public Vector2 entityPos;
+    [SerializeField] float detectionRange = 0.0F;
+    [SerializeField] float movementSpeed = 0.0F;
+    [SerializeField] bool isFacingLeft = true;
+    bool isTurning = false;
+    [SerializeField] float turnDelay = 1.0f;
+    [SerializeField] LayerMask groundLayer;
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        if (isTurning)
+        SetDetectionRange();
+    }
+    void SetDetectionRange()
+    {
+        if (detectionRange == 0)
         {
-            return;
+            detectionRange = transform.localScale.x * 3 / 4;
         }
+    }
 
-        RaycastHit2D hit = Physics2D.Raycast(entityPos, isMovingRight ? Vector2.right : Vector2.left, detectionRange);
-        if(hit.collider != null)
+    void FixedUpdate()
+    {
+        if (isTurning) { return; }
+        CheckForTurn();
+        Move();
+    }
+    void CheckForTurn()
+    {
+
+        Vector2 vector = isFacingLeft ? Vector2.left : Vector2.right;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, vector, detectionRange, groundLayer);
+        if (hit)
         {
             FlipDirection();
         }
-        Vector2 movement = isMovingRight ? Vector2.right : Vector2.left;
-        transform.Translate(movement * movementSpeed * Time.deltaTime); 
+    }
+    void Move()
+    {
+        transform.Translate(movementSpeed * Time.deltaTime * Vector2.left);
     }
 
     private void FlipDirection()
     {
-        Debug.Log("Flipping enemy direction");
-
-        isMovingRight = !isMovingRight;
+        isFacingLeft = !isFacingLeft;
         StartCoroutine(ResetTurningFlag());
     }
 
     private IEnumerator ResetTurningFlag()
     {
-        yield return new WaitForSeconds(seconds);
+        isTurning = true;
+        yield return new WaitForSeconds(turnDelay);
 
+        transform.Rotate(0, 180, 0);
         isTurning = false;
     }
 }
