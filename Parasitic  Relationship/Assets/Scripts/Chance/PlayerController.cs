@@ -9,6 +9,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    private static PlayerController instance;
+
     [Header("Settings: ")]
 
     [Tooltip("Remove layers from this mask to prevent them from interacting as ground to the player.\n(anything you dont want the player to be able to jump on)")]
@@ -71,6 +73,19 @@ public class PlayerController : MonoBehaviour
     [Header("Viewing Only")]
     public bool grounded = false;
     private Rigidbody2D rb;
+
+    private void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
