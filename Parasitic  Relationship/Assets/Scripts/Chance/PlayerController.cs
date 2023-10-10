@@ -82,6 +82,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            GetComponent<Collider2D>().enabled = false;
             Destroy(gameObject);
         }
     }

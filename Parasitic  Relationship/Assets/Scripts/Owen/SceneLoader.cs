@@ -9,6 +9,8 @@ using UnityEngine.SceneManagement;
  */
 public static class SceneLoader
 {
+    static readonly int loadBuffer = 1;
+
     public static void SetScene(GameObject obj)
     {
         SetScene(obj.scene.buildIndex);
@@ -21,16 +23,19 @@ public static class SceneLoader
 
     static void LoadNextScene(int buildIndex)
     {
-        int nextScene = buildIndex + 1;
-        if(IndexInRange(nextScene) && !SceneAlreadyLoaded(nextScene))
+        for(int buffer = 1; buffer <= loadBuffer; buffer++)
         {
-            LoadScene(nextScene);
-        }
+            int nextScene = buildIndex + buffer;
+            if (IndexInRange(nextScene) && !SceneAlreadyLoaded(nextScene))
+            {
+                LoadScene(nextScene);
+            }
 
-        int previousScene = buildIndex - 1;
-        if(IndexInRange(previousScene) && !SceneAlreadyLoaded(previousScene))
-        {
-            LoadScene(previousScene);
+            int previousScene = buildIndex - buffer;
+            if (IndexInRange(previousScene) && !SceneAlreadyLoaded(previousScene))
+            {
+                LoadScene(previousScene);
+            }
         }
     }
     static void LoadScene(int buildIndex)
@@ -40,13 +45,13 @@ public static class SceneLoader
 
     static void UnloadPreviousScene(int buildIndex)
     {
-        int nextScene = buildIndex + 2;
+        int nextScene = buildIndex + loadBuffer + 1;
         if (IndexInRange(nextScene) && SceneAlreadyLoaded(nextScene))
         {
             UnloadScene(nextScene);
         }
 
-        int previousScene = buildIndex - 2;
+        int previousScene = buildIndex - loadBuffer - 1;
         if (IndexInRange(previousScene) && SceneAlreadyLoaded(previousScene))
         {
             UnloadScene(previousScene);
