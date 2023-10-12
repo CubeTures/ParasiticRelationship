@@ -5,10 +5,12 @@ using UnityEngine.Events;
 
 public class PressableSwitch : MonoBehaviour
 {
+    [SerializeField] UnityEvent onSwitchPressSingleAction;
     [SerializeField] UnityEvent<bool> onSwitchPress;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] bool pressableByPlayer;
     [SerializeField] bool heldSwitch;
+    bool pressedOnce = false;
 
     List<Collision2D> currentlyColliding;
 
@@ -29,6 +31,9 @@ public class PressableSwitch : MonoBehaviour
     }
     void SwitchPressed(Collision2D collision)
     {
+        if(!pressedOnce) { onSwitchPressSingleAction.Invoke(); }
+        pressedOnce = true;
+
         //animation
         onSwitchPress.Invoke(true);
     }

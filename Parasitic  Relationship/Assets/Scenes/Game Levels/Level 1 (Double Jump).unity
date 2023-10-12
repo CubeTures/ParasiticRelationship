@@ -6152,21 +6152,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 856846798122447505, guid: 5d3b4ca854051694bad4b05e98986f7c, type: 3}
-      propertyPath: jumps
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 856846798122447505, guid: 5d3b4ca854051694bad4b05e98986f7c, type: 3}
-      propertyPath: doubleJumpForce
-      value: 700
-      objectReference: {fileID: 0}
     - target: {fileID: 4260063534517381888, guid: 5d3b4ca854051694bad4b05e98986f7c, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 4260063534517381888, guid: 5d3b4ca854051694bad4b05e98986f7c, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7395803031309572169, guid: 5d3b4ca854051694bad4b05e98986f7c, type: 3}
       propertyPath: m_LocalPosition.x

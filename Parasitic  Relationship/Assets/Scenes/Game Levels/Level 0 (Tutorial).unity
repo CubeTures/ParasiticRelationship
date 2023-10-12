@@ -171,10 +171,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4328611719217563048, guid: dd2b946a4c7d9714c99cb6072a45e96e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 9197489921775392682, guid: dd2b946a4c7d9714c99cb6072a45e96e, type: 3}
       propertyPath: m_Name
       value: Template Camera Package
@@ -851,7 +847,7 @@ GameObject:
   - component: {fileID: 696949357}
   - component: {fileID: 696949356}
   - component: {fileID: 696949355}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}

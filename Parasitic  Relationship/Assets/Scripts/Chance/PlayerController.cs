@@ -67,6 +67,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("the lenience for how fast the player needs to be moving to counter the slide, a smaller number means the slide will be cancelled fuller")]
     [Range(0f,1f)]
     public float counterSlideLenience = .25f;
+    Vector2 facingDirection = Vector2.right;
 
     [Header("Other")]
     public bool lock_rotation = true;
@@ -76,9 +77,14 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        if(instance == null)
+        DestroyIfDuplicate();
+    }
+    void DestroyIfDuplicate()
+    {
+        if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -87,7 +93,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -99,104 +104,167 @@ public class PlayerController : MonoBehaviour
 
     void Update(){
         if (Input.GetKeyDown(KeyCode.Space)){
-            tryJump();
+            TryJump();
         }
         //Debug.Log(rb.velocity.y);
         if (Input.GetKeyUp(KeyCode.Space) && jumping && jumpDampening) {
             rb.gravityScale = jumpGrav;
         }
-
     }
+    void TryJump()
+    {
+        if (jumpsLeft > 0)
+        {
+            jumpCheat = true;
+            jumping = true;
+            rb.drag = linearDrag;
+
+            if ((doubleJumpForce != jumpForce) && (jumpsLeft < jumps))
+            {
+                rb.AddForce(new Vector2(0, doubleJumpForce)); // since using addforce and grounded raycast the player can read as grounded after they jump and get the jump reset, prevented with more jump logic
+            }
+            else
+            {
+                rb.AddForce(new Vector2(0, jumpForce)); // since using addforce and grounded raycast the player can read as grounded after they jump and get the jump reset, prevented with more jump logic
+            }
+
+            jumpsLeft--;
+        }
+    }
+
     // FixedUpdate happens once every physics frame
     void FixedUpdate()
     {
-
+        Jump();
+        Move();
+    }
+    void Jump()
+    {
         // || Physics2D.Raycast(new Vector2(this.transform.position.x-.5f, this.transform.position.y - .5f), Vector2.down, .1f)
         grounded = Physics2D.Linecast(groundedRayRight.transform.position, groundedRayLeft.transform.position, ground_layers);//.9f is to stop it from hitting the walls a bit
-        if (jumpCheat) {
-            if (!grounded) {
+        if (jumpCheat)
+        {
+            if (!grounded)
+            {
                 jumpCheat = false;
             }
             grounded = false;
         }
-        if (grounded) {
+        if (grounded)
+        {
             rb.gravityScale = baseGravScale;
-            if (jumping) {
+            if (jumping)
+            {
                 jumping = false;
             }
         }
 
-        if (grounded && (jumpsLeft < jumps)) {
+        if (grounded && (jumpsLeft < jumps))
+        {
             rb.gravityScale = baseGravScale;
             jumpsLeft = jumps;
         }
-        float x_force = rb.velocity.x * mass;
-
-
+    }
+    void Move()
+    {
+        SetMovementMod();
+        GetInput();
+    }
+    void SetMovementMod()
+    {
         //Movement Related Conditionals
-        if (!air_control && !grounded){//dont check for movement if the player cannot move
-            return;//skipping code below, its just more elegant than nesting it
+        if (air_control || grounded) // dont check for movement if the player cannot move
+        {
+            if (air_control && !grounded)
+            {
+                movementmod = reduce_air_control;
+            }
+            else if (air_control) // player is grounded with air control
+            {
+                movementmod = 1;
+            }
         }
-        if (air_control && !grounded){
-            float movementmod = reduce_air_control;
-        }
-        else if (air_control){//player is grounded with air control
-            movementmod = 1;
+    }
+    void GetInput()
+    {
+        //-------All Movement Code Must Go Below--------//
+        float x_force = rb.velocity.x * mass;
+        MoveLeft(x_force);
+        MoveRight(x_force);
+
+        if (counterSlide && grounded)
+        {
+            if (((x_force > (max_movement_xforce * counterSlideLenience)) && !Input.GetKey(KeyCode.D)) || ((x_force < (-max_movement_xforce * counterSlideLenience)) && !Input.GetKey(KeyCode.A)))
+            {
+                rb.drag = dampenerStrength;
+            }
         }
 
-        //-------All Movement Code Must Go Below--------//
-        if (Input.GetKey(KeyCode.D)){
-            if (x_force < 0 && (grounded || air_drag)){
-                rb.drag = dampenerStrength;
-            }else{
-                rb.drag = linearDrag;
-            }
-            if (x_force < max_movement_xforce){//allow the player to move?
-                if ((x_force + (speed * mass * Time.deltaTime)) < max_movement_xforce) {
-                    rb.AddForce(new Vector2(speed, 0));
-                }
-                else {
-                    rb.AddForce(new Vector2((max_movement_xforce - x_force) * movementmod, 0));
-                }
-            }
+        if (!jumping && !grounded && fallDampening)
+        {
+            rb.gravityScale = jumpGrav;
         }
-        if (Input.GetKey(KeyCode.A)){
-            if (x_force > 0 && (grounded || air_drag)){
+    }
+    void MoveLeft(float x_force)
+    {
+        if (Input.GetKey(KeyCode.A))
+        {
+            facingDirection = Vector2.left;
+            if (x_force > 0 && (grounded || air_drag))
+            {
                 rb.drag = dampenerStrength;
-            }else{
+            }
+            else
+            {
                 rb.drag = linearDrag;
             }
-            if (x_force > -max_movement_xforce){//allow the player to move?
-                if ((x_force + (-speed * mass * Time.deltaTime)) > -max_movement_xforce) {
+            if (x_force > -max_movement_xforce) //allow the player to move?
+            {
+                if ((x_force + (-speed * mass * Time.deltaTime)) > -max_movement_xforce)
+                {
                     rb.AddForce(new Vector2(-speed, 0));
                 }
-                else {
+                else
+                {
                     rb.AddForce(new Vector2((-max_movement_xforce - x_force) * movementmod, 0));
                 }
             }
         }
-        if (counterSlide && grounded) {
-            if (((x_force > (max_movement_xforce * counterSlideLenience)) && !Input.GetKey(KeyCode.D)) || ((x_force < (-max_movement_xforce * counterSlideLenience)) && !Input.GetKey(KeyCode.A))) {
+    }
+    void MoveRight(float x_force)
+    {
+        if (Input.GetKey(KeyCode.D))
+        {
+            facingDirection = Vector2.right;
+            if (x_force < 0 && (grounded || air_drag))
+            {
                 rb.drag = dampenerStrength;
             }
+            else
+            {
+                rb.drag = linearDrag;
+            }
+            if (x_force < max_movement_xforce) //allow the player to move?
+            {
+                if ((x_force + (speed * mass * Time.deltaTime)) < max_movement_xforce)
+                {
+                    rb.AddForce(new Vector2(speed, 0));
+                }
+                else
+                {
+                    rb.AddForce(new Vector2((max_movement_xforce - x_force) * movementmod, 0));
+                }
+            }
         }
-        if (!jumping && !grounded && fallDampening) {
-            rb.gravityScale = jumpGrav;
-        }
-
     }
-    void tryJump(){
-        if (jumpsLeft > 0){
-            jumpCheat = true;
-            jumping = true;
-            rb.drag = linearDrag;
-            if ((doubleJumpForce != jumpForce) && (jumpsLeft < jumps)){
-                rb.AddForce(new Vector2(0, doubleJumpForce)); // since using addforce and grounded raycast the player can read as grounded after they jump and get the jump reset, prevented with more jump logic
-            }
-            else {
-                rb.AddForce(new Vector2(0, jumpForce)); // since using addforce and grounded raycast the player can read as grounded after they jump and get the jump reset, prevented with more jump logic
-            }
-            jumpsLeft--;
-        }
+
+    public bool IsGrounded()
+    {
+        return grounded;
+    }
+
+    public Vector2 GetFacingDirection()
+    {
+        return facingDirection;
     }
 }

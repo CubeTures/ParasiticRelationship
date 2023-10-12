@@ -9,7 +9,7 @@ public class DisableCamera : MonoBehaviour
         Camera thisCamera = GetComponent<Camera>();
         if(thisCamera != Camera.main)
         {
-            gameObject.SetActive(false);
+            Destroy(gameObject);
         }
     }
 }

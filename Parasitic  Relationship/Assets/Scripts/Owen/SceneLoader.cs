@@ -28,12 +28,14 @@ public static class SceneLoader
             int nextScene = buildIndex + buffer;
             if (IndexInRange(nextScene) && !SceneAlreadyLoaded(nextScene))
             {
+                Debug.Log($"Load Scene {nextScene}");
                 LoadScene(nextScene);
             }
 
             int previousScene = buildIndex - buffer;
             if (IndexInRange(previousScene) && !SceneAlreadyLoaded(previousScene))
             {
+                Debug.Log($"Load Scene {previousScene}");
                 LoadScene(previousScene);
             }
         }
@@ -48,12 +50,14 @@ public static class SceneLoader
         int nextScene = buildIndex + loadBuffer + 1;
         if (IndexInRange(nextScene) && SceneAlreadyLoaded(nextScene))
         {
+            Debug.Log($"Unload Scene {nextScene}");
             UnloadScene(nextScene);
         }
 
         int previousScene = buildIndex - loadBuffer - 1;
         if (IndexInRange(previousScene) && SceneAlreadyLoaded(previousScene))
         {
+            Debug.Log($"Unload Scene {previousScene}");
             UnloadScene(previousScene);
         }
     }   

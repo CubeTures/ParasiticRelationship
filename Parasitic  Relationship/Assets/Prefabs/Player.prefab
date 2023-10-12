@@ -169,7 +169,7 @@ MonoBehaviour:
   air_drag: 0
   jumps: 1
   jumpForce: 700
-  doubleJumpForce: 350
+  doubleJumpForce: 700
   jumpDampening: 1
   fallDampening: 1
   jumpGrav: 3
