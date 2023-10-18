@@ -267,4 +267,8 @@ public class PlayerController : MonoBehaviour
     {
         return facingDirection;
     }
+    public void setJumps(int j){
+        jumps = j;
+        jumpsLeft = j;
+    }
 }
