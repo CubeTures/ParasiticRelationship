@@ -4775,7 +4775,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4136842246541148349, guid: 4bed8df953d682e4fbaef16e906b0b1a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.5
+      value: -3.19
       objectReference: {fileID: 0}
     - target: {fileID: 4136842246541148349, guid: 4bed8df953d682e4fbaef16e906b0b1a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4813,11 +4813,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: Basic Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 6238010712337145846, guid: 4bed8df953d682e4fbaef16e906b0b1a, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 3636981872936117593}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4bed8df953d682e4fbaef16e906b0b1a, type: 3}
+--- !u!95 &3636981872936117593 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2274545969091610164, guid: 4bed8df953d682e4fbaef16e906b0b1a, type: 3}
+  m_PrefabInstance: {fileID: 3636981872936117591}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3788811862592691989
 PrefabInstance:
   m_ObjectHideFlags: 0

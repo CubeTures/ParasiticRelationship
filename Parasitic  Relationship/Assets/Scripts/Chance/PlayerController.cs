@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -74,6 +75,7 @@ public class PlayerController : MonoBehaviour
     [Header("Viewing Only")]
     public bool grounded = false;
     private Rigidbody2D rb;
+    bool facingRight = true;
 
     private void Awake()
     {
@@ -210,6 +212,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.A))
         {
             facingDirection = Vector2.left;
+            if (facingRight){
+                facingRight = false;
+                transform.Rotate(0, 180, 0);
+            }
             if (x_force > 0 && (grounded || air_drag))
             {
                 rb.drag = dampenerStrength;
@@ -236,6 +242,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
         {
             facingDirection = Vector2.right;
+            if (!facingRight){
+                facingRight = true;
+                transform.Rotate(0, 180, 0);
+            }
+            
             if (x_force < 0 && (grounded || air_drag))
             {
                 rb.drag = dampenerStrength;
