@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
     Vector2 facingDirection = Vector2.right;
 
     [Header("Other")]
+    public Animator m_animator;
     public bool lock_rotation = true;
     [Header("Viewing Only")]
     public bool grounded = false;
@@ -97,6 +98,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        m_animator = this.GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         rb.mass = mass;
         rb.angularDrag = angularDrag;
@@ -105,6 +107,14 @@ public class PlayerController : MonoBehaviour
     }
 
     void Update(){
+        if (grounded && math.abs(rb.velocity.x) >  0){
+            m_animator.SetBool("running", true);
+        }
+        else{
+            m_animator.SetBool("running", false);
+        }
+        m_animator.SetBool("jumping", jumping);
+        
         if (Input.GetKeyDown(KeyCode.Space)){
             TryJump();
         }
